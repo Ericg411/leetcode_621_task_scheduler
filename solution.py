@@ -1,28 +1,15 @@
-from collections import Counter, deque
-import heapq
+from collections import Counter
 from typing import List
 
 class Solution:
     def leastInterval(self, tasks: List[str], n: int) -> int:
         freq = Counter(tasks)
-        heap = []
-        cooldown = deque()
-        timer = 0
-
-        for key, value in freq.items():
-            print(f"{key}, {value}")
-            heapq.heappush(heap, -value)
+        max_freq = max(freq.values())
+        max_freq_count = list(freq.values()).count(max_freq)
+        gap_count = max_freq - 1
+        gap_length = n - max_freq_count + 1
+        empty_spaces = gap_count * gap_length
+        available_tasks = len(tasks) - (max_freq * max_freq_count)
+        idles = max(0, (empty_spaces - available_tasks))
         
-        while heap or cooldown:
-            if heap:
-                task = -heapq.heappop(heap)
-                if task > 1:
-                    cooldown.append((task-1, timer+n+1))
-            timer += 1
-
-            while cooldown and cooldown[0][1] == timer:
-                task_count, next_iteration = cooldown[0]
-                cooldown.popleft()
-                heapq.heappush(heap, -task_count)
-
-        return timer
+        return len(tasks) + idles
